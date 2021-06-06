@@ -51,17 +51,23 @@ async fn main() {
         release_type: ReleaseType::ga,
         vendor: Vendor::adoptopenjdk,
     };
+    let install = installer::settings::Install {
+        jvm_version: binary.feature_version.clone(),
+        jvm_impl: binary.jvm_impl.clone(),
+        location: "".to_string(),
+    };
+    let result2 = installer.contains_install(&install).unwrap();
+    if result2 {
+        println!("That version has already been installed");
+        return;
+    }
     let result1 = jdk.download_binary(binary.clone(), std::env::temp_dir().as_path().clone()).await;
     if let Err(ref e) = result1 {
         println!("{}", e);
     }
     let buf = result1.unwrap();
     let installer = installer::Installer;
-    let result3 = installer.install(buf, installer::settings::Install {
-        jvm_version: binary.feature_version,
-        jvm_impl: binary.jvm_impl,
-        location: "".to_string(),
-    });
+    let result3 = installer.install(buf, install);
     if let Err(ref e) = result3 {
         println!("{}", e);
     }

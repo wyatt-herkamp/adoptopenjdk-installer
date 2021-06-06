@@ -81,6 +81,10 @@ impl Installer {
         file.write_all(string.as_bytes())?;
         Ok(())
     }
+    pub fn contains_install(&self, install: &Install) -> Result<bool, AdoptOpenJDKError> {
+        let settings = self.get_settings()?;
+        Ok(settings.installs.contains(install))
+    }
     pub fn does_settings_exist(&self) -> bool {
         Path::new("/etc").join("adoptopenjdk").join("settings.toml").exists()
     }

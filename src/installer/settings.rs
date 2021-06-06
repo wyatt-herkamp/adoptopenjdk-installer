@@ -7,11 +7,13 @@ pub struct Settings {
     pub install_location: String,
     pub installs: Vec<Install>,
 }
-impl Settings{
-    pub fn add_install(&mut self, install: Install){
+
+impl Settings {
+    pub fn add_install(&mut self, install: Install) {
         self.installs.push(install);
     }
 }
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Install {
     pub jvm_version: i64,
@@ -22,5 +24,11 @@ pub struct Install {
 impl Install {
     pub fn set_location(&mut self, location: String) {
         self.location = location;
+    }
+}
+
+impl PartialEq for Install {
+    fn eq(&self, other: &Install) -> bool {
+        self.jvm_impl == other.jvm_impl && self.jvm_version == other.jvm_version
     }
 }
