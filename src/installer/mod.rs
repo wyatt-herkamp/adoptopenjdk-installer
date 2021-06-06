@@ -57,7 +57,9 @@ impl Installer {
         let javac = path_two.clone().join("bin").join("javac");
         // sudo update-alternatives --install /usr/bin/java java <path> 1
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/java").arg("java").arg(java.to_str().unwrap()).arg("1").spawn()?;
-        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac ").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javadoc").arg("javadoc").arg(javac.to_str().unwrap()).arg("1").spawn()?;
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/jar").arg("jar").arg(javac.to_str().unwrap()).arg("1").spawn()?;
         Ok(true)
     }
     pub fn get_settings(&self) -> Result<Settings, AdoptOpenJDKError> {
@@ -66,11 +68,10 @@ impl Installer {
         return toml::from_str(result.as_str()).map_err(AdoptOpenJDKError::from);
     }
     pub fn update_settings(&self, settings: Settings) -> Result<(), AdoptOpenJDKError> {
-
         let buf = Path::new("/etc").join("adoptopenjdk").join("settings.toml");
-        if !buf.exists(){
+        if !buf.exists() {
             let x = buf.parent().unwrap();
-            if !x.exists(){
+            if !x.exists() {
                 create_dir_all(x)?;
             }
         }
@@ -79,7 +80,7 @@ impl Installer {
         file.write_all(string.as_bytes())?;
         Ok(())
     }
-    pub fn does_settings_exist(&self) ->bool{
+    pub fn does_settings_exist(&self) -> bool {
         Path::new("/etc").join("adoptopenjdk").join("settings.toml").exists()
     }
 }

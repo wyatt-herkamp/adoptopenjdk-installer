@@ -5,6 +5,7 @@ use std::path::Path;
 use std::str::FromStr;
 use tokio::io::AsyncWriteExt;
 use std::io::{stdin, stdout, Write};
+use crate::installer::settings::Settings;
 
 pub mod utils;
 
@@ -13,6 +14,18 @@ pub mod installer;
 
 #[tokio::main]
 async fn main() {
+    if !whoami::username().eq("root") {
+        println!("This applications must be ran as root!");
+        return;
+    }
+    let installer = installer::Installer;
+    if !installer.does_settings_exist() {
+        let settings1 = Settings {
+            install_location: "/opt/adoptopenjdk".to_string(),
+            installs: vec![],
+        };
+        installer.update_settings(settings1).unwrap();
+    }
     let jdk = AdoptOpenJDK::new("AdoptOpenJDK Installer by Wyatt Herkamp (github.com/wherkamp)".to_string());
     let result = jdk.get_releases().await.unwrap();
     print!("Please Select a Java Version {}: ", result.to_string());
@@ -38,12 +51,17 @@ async fn main() {
         release_type: ReleaseType::ga,
         vendor: Vendor::adoptopenjdk,
     };
-    let result1 = jdk.download_binary(binary, std::env::temp_dir().as_path().clone()).await;
+    let result1 = jdk.download_binary(binary.clone(), std::env::temp_dir().as_path().clone()).await;
     if let Err(ref e) = result1 {
         println!("{}", e);
     }
     let buf = result1.unwrap();
-    let result3 = installer::install(buf);
+    let installer = installer::Installer;
+    let result3 = installer.install(buf, installer::settings::Install {
+        jvm_version: binary.feature_version,
+        jvm_impl: binary.jvm_impl,
+        location: "".to_string(),
+    });
     if let Err(ref e) = result3 {
         println!("{}", e);
     }
