@@ -6,6 +6,8 @@ use std::str::FromStr;
 use tokio::io::AsyncWriteExt;
 use std::io::{stdin, stdout, Write};
 use crate::installer::settings::Settings;
+use clap::{App, Arg};
+use crate::installer::Installer;
 
 pub mod utils;
 
@@ -26,6 +28,25 @@ async fn main() {
         };
         installer.update_settings(settings1).unwrap();
     }
+    let mut app = App::new("AdoptOpenJDK Installer").
+        version("0.1.0").author("Wyatt Jacob Herkamp <wherkamp@kingtux.me>").about("A AdoptOpenJDK installer for Linux")
+        .arg(Arg::with_name("install").short("i").long("install").help("Install a Java Version").takes_value(false))
+        .arg(Arg::with_name("list").short("l").long("list").help("Lists installed Java versions").takes_value(false))
+        .arg(Arg::with_name("remove").short("r").long("remove").help("Remove A Java Install").takes_value(false));
+    let mut matches = app.clone().get_matches();
+    if matches.is_present("install") {
+        install(&installer).await;
+    } else if matches.is_present("list") {
+        let settings = installer.get_settings().unwrap();
+        for x in settings.installs {
+            println!("{}", x);
+        }
+    } else if matches.is_present("remove") {} else {
+        app.print_help();
+    }
+}
+
+pub async fn install(installer: &Installer) {
     let jdk = AdoptOpenJDK::new("AdoptOpenJDK Installer by Wyatt Herkamp (github.com/wherkamp)".to_string());
     let result = jdk.get_releases().await.unwrap();
     print!("Please Select a Java Version {}: ", result.to_string());

@@ -1,2 +1,2 @@
 # AdoptOpenJDK-Installer
-Install AdoptOpenJDK versions and adds it to update-alterantives to Linux
+Install AdoptOpenJDK versions and adds it to update-alternatives to Linux

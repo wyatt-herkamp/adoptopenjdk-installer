@@ -1,11 +1,19 @@
 use serde::Deserialize;
 use serde::Serialize;
 use crate::adoptopenjdk::response::JVMImpl;
+use std::fmt::{Display, Formatter};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Settings {
     pub install_location: String,
     pub installs: Vec<Install>,
+}
+
+impl Display for Settings {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let result = serde_json::to_string(self).unwrap();
+        write!(f, "{}", result)
+    }
 }
 
 impl Settings {
@@ -24,6 +32,13 @@ pub struct Install {
 impl Install {
     pub fn set_location(&mut self, location: String) {
         self.location = location;
+    }
+}
+
+impl Display for Install {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let result = serde_json::to_string(self).unwrap();
+        write!(f, "{}", result)
     }
 }
 
