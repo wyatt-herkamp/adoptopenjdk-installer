@@ -37,13 +37,13 @@ pub struct Installer;
 
 impl Installer {
     pub fn install(&self, path: PathBuf, install: Install) -> Result<bool, AdoptOpenJDKError> {
-        println!("HEY");
+        println!("Installing: {} {}", install.jvm_version, install.jvm_impl.to_string());
         let file = File::open(path.clone())?;
         let tar = GzDecoder::new(file);
         let mut archive = Archive::new(tar);
         let mut settings = self.get_settings()?;
 
-        let buf = Path::new(settings.install_location.as_str());
+        let buf = Path::new(settings.install_location.as_str()).join(install.jvm_impl.to_string());
         if !buf.exists() {
             create_dir_all(&buf);
         }
@@ -55,11 +55,11 @@ impl Installer {
         self.update_settings(settings);
         let java = path_two.clone().join("bin").join("java");
         let javac = path_two.clone().join("bin").join("javac");
+        let javadoc = path_two.clone().join("bin").join("javadoc");
         // sudo update-alternatives --install /usr/bin/java java <path> 1
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/java").arg("java").arg(java.to_str().unwrap()).arg("1").spawn()?;
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
-        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javadoc").arg("javadoc").arg(javac.to_str().unwrap()).arg("1").spawn()?;
-        Command::new("update-alternatives").arg("--install").arg("/usr/bin/jar").arg("jar").arg(javac.to_str().unwrap()).arg("1").spawn()?;
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javadoc").arg("javadoc").arg(javadoc.to_str().unwrap()).arg("1").spawn()?;
         Ok(true)
     }
     pub fn get_settings(&self) -> Result<Settings, AdoptOpenJDKError> {
