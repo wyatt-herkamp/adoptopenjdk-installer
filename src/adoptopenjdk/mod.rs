@@ -16,6 +16,8 @@ pub enum AdoptOpenJDKError {
     HTTPError(StatusCode),
     ReqwestError(reqwest::Error),
     JSONError(serde_json::Error),
+    TOMLDeError(toml::de::Error),
+    TOMLSeError(toml::ser::Error),
     STDIoError(std::io::Error),
     Custom(String),
 }
@@ -42,6 +44,12 @@ impl Display for AdoptOpenJDKError {
                 let x = "IO Error";
                 return write!(f, "{} {}", x, err);
             }
+            AdoptOpenJDKError::TOMLDeError(e) => {
+                return return write!(f, "TOML Error {}", e);
+            }
+            AdoptOpenJDKError::TOMLSeError(e) => {
+                return return write!(f, "TOML Error {}", e);
+            }
         }
     }
 }
@@ -53,6 +61,7 @@ impl From<reqwest::Error> for AdoptOpenJDKError {
         AdoptOpenJDKError::ReqwestError(err)
     }
 }
+
 impl From<std::io::Error> for AdoptOpenJDKError {
     fn from(err: std::io::Error) -> AdoptOpenJDKError {
         AdoptOpenJDKError::STDIoError(err)
@@ -62,6 +71,18 @@ impl From<std::io::Error> for AdoptOpenJDKError {
 impl From<serde_json::Error> for AdoptOpenJDKError {
     fn from(err: serde_json::Error) -> AdoptOpenJDKError {
         AdoptOpenJDKError::JSONError(err)
+    }
+}
+
+impl From<toml::de::Error> for AdoptOpenJDKError {
+    fn from(err: toml::de::Error) -> AdoptOpenJDKError {
+        AdoptOpenJDKError::TOMLDeError(err)
+    }
+}
+
+impl From<toml::ser::Error> for AdoptOpenJDKError {
+    fn from(err: toml::ser::Error) -> AdoptOpenJDKError {
+        AdoptOpenJDKError::TOMLSeError(err)
     }
 }
 

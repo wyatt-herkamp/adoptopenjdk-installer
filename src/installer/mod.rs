@@ -1,24 +1,18 @@
+pub mod settings;
+
 use std::path::{PathBuf, Path};
 use crate::adoptopenjdk::AdoptOpenJDKError;
-use std::fs::{File, create_dir_all};
+use std::fs::{File, create_dir_all, read_to_string, OpenOptions};
 use flate2::read::GzDecoder;
 use tar::{Archive, Entry};
 use std::process::Command;
 use std::fs;
+use crate::installer::settings::{Install, Settings};
+use std::io::Write;
 
+/// Stolen from Tar depend and modified to fit my needs
 pub fn unpack(mut archive: Archive<GzDecoder<File>>, dst: &Path) -> Result<String, AdoptOpenJDKError> {
-
-
-    // Canonicalizing the dst directory will prepend the path with '\\?\'
-    // on windows which will allow windows APIs to treat the path as an
-    // extended-length path with a 32,767 character limit. Otherwise all
-    // unpacked paths over 260 characters will fail on creation with a
-    // NotFound exception.
     let dst = &dst.canonicalize().unwrap_or(dst.to_path_buf());
-
-    // Delay any directory entries until the end (they will be created if needed by
-    // descendants), to ensure that directory permissions do not interfer with descendant
-    // extraction.
     let mut first = None;
     let mut directories = Vec::new();
     for entry in archive.entries()? {
@@ -28,7 +22,6 @@ pub fn unpack(mut archive: Archive<GzDecoder<File>>, dst: &Path) -> Result<Strin
                 first = Some(file.path().unwrap().to_str().unwrap().to_string());
             }
             directories.push(file);
-
         } else {
             file.unpack_in(dst)?;
         }
@@ -40,21 +33,53 @@ pub fn unpack(mut archive: Archive<GzDecoder<File>>, dst: &Path) -> Result<Strin
     Ok(first.unwrap())
 }
 
-pub fn install(path: PathBuf) -> Result<bool, AdoptOpenJDKError> {
-    println!("HEY");
-    let file = File::open(path.clone())?;
-    let tar = GzDecoder::new(file);
-    let mut archive = Archive::new(tar);
-    let buf = Path::new("/opt").join("adoptopenjdk");
-    if !buf.exists() {
-        create_dir_all(&buf);
+pub struct Installer;
+
+impl Installer {
+    pub fn install(&self, path: PathBuf, install: Install) -> Result<bool, AdoptOpenJDKError> {
+        println!("HEY");
+        let file = File::open(path.clone())?;
+        let tar = GzDecoder::new(file);
+        let mut archive = Archive::new(tar);
+        let mut settings = self.get_settings()?;
+
+        let buf = Path::new(settings.install_location.as_str());
+        if !buf.exists() {
+            create_dir_all(&buf);
+        }
+        let string = unpack(archive, &buf)?;
+        let mut path_two = buf.join(string);
+        let mut install = install.clone();
+        install.set_location(path_two.clone().to_str().unwrap().to_string());
+        settings.add_install(install);
+        self.update_settings(settings);
+        let java = path_two.clone().join("bin").join("java");
+        let javac = path_two.clone().join("bin").join("javac");
+        // sudo update-alternatives --install /usr/bin/java java <path> 1
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/java").arg("java").arg(java.to_str().unwrap()).arg("1").spawn()?;
+        Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac ").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
+        Ok(true)
     }
-    let string = unpack(archive, &buf)?;
-    let mut path_two = buf.join(string);
-    let java = path_two.clone().join("bin").join("java");
-    let javac = path_two.clone().join("bin").join("javac");
-    // sudo update-alternatives --install /usr/bin/java java <path> 1
-    Command::new("update-alternatives").arg("--install").arg("/usr/bin/java").arg("java").arg(java.to_str().unwrap()).arg("1").spawn()?;
-    Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
-    Ok(true)
+    pub fn get_settings(&self) -> Result<Settings, AdoptOpenJDKError> {
+        let buf = Path::new("/etc").join("adoptopenjdk").join("settings.toml");
+        let result = read_to_string(buf)?;
+        return toml::from_str(result.as_str()).map_err(AdoptOpenJDKError::from);
+    }
+    pub fn update_settings(&self, settings: Settings) -> Result<(), AdoptOpenJDKError> {
+
+        let buf = Path::new("/etc").join("adoptopenjdk").join("settings.toml");
+        if !buf.exists(){
+            let x = buf.parent().unwrap();
+            if !x.exists(){
+                create_dir_all(x)?;
+            }
+        }
+        let string = toml::to_string(&settings)?;
+        let mut file = OpenOptions::new().write(true).read(true).create(true).open(buf)?;
+        file.write_all(string.as_bytes())?;
+        Ok(())
+    }
+    pub fn does_settings_exist(&self) ->bool{
+        Path::new("/etc").join("adoptopenjdk").join("settings.toml").exists()
+    }
 }

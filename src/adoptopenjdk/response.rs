@@ -7,7 +7,7 @@ use std::fmt::{Display, Formatter};
 
 use colored::*;
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum Architecture {
     x64,
     x86,
@@ -34,19 +34,19 @@ impl FromStr for Architecture {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum JVMImpl {
     hotspot,
     openj9,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum HeapSize {
     normal,
     large,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum Project {
     jdk,
     valhalla,
@@ -55,7 +55,7 @@ pub enum Project {
     shenandoah,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum Imagetype {
     jdk,
     jre,
@@ -64,7 +64,7 @@ pub enum Imagetype {
     staticlibs,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum OS {
     linux,
     windows,
@@ -75,7 +75,7 @@ pub enum OS {
     alpine_linux,
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum ReleaseType {
     ea,
     ga,
@@ -106,7 +106,7 @@ impl Display for AvailableReleases {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Display)]
+#[derive(Serialize, Deserialize, Debug, Clone,Display)]
 pub enum Vendor {
     adoptopenjdk,
     openjdk,
