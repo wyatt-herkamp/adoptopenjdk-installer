@@ -2,7 +2,7 @@ pub mod settings;
 
 use std::path::{PathBuf, Path};
 use crate::adoptopenjdk::AdoptOpenJDKError;
-use std::fs::{File, create_dir_all, read_to_string, OpenOptions};
+use std::fs::{File, create_dir_all, read_to_string, OpenOptions, remove_dir_all, remove_file};
 use flate2::read::GzDecoder;
 use tar::{Archive, Entry};
 use std::process::Command;
@@ -63,6 +63,21 @@ impl Installer {
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/javadoc").arg("javadoc").arg(javadoc.to_str().unwrap()).arg("1").spawn()?;
         Ok(true)
     }
+    pub fn uninstall(&self, value: usize) -> Result<(), AdoptOpenJDKError> {
+        let mut settings = self.get_settings()?;
+        let install = settings.remove_install(value);
+        let path = Path::new(&install.location);
+
+        self.update_settings(settings)?;
+        let java = path.clone().join("bin").join("java");
+        let javac = path.clone().join("bin").join("javac");
+        let javadoc = path.clone().join("bin").join("javadoc");
+        Command::new("update-alternatives").arg("--remove").arg("java").arg(java.to_str().unwrap()).spawn()?;
+        Command::new("update-alternatives").arg("--remove").arg("javac").arg(javac.to_str().unwrap()).spawn()?;
+        Command::new("update-alternatives").arg("--remove").arg("javadoc").arg(javadoc.to_str().unwrap()).spawn()?;
+        remove_dir_all(path)?;
+        Ok(())
+    }
     pub fn get_settings(&self) -> Result<Settings, AdoptOpenJDKError> {
         let buf = Path::new("/etc").join("adoptopenjdk").join("settings.toml");
         let result = read_to_string(buf)?;
@@ -75,6 +90,8 @@ impl Installer {
             if !x.exists() {
                 create_dir_all(x)?;
             }
+        }else {
+            remove_file(&buf);
         }
         let string = toml::to_string(&settings)?;
         let mut file = OpenOptions::new().write(true).read(true).create(true).open(buf)?;

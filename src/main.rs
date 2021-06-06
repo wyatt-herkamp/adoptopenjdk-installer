@@ -1,11 +1,11 @@
-use crate::adoptopenjdk::AdoptOpenJDK;
+use crate::adoptopenjdk::{AdoptOpenJDK, AdoptOpenJDKError};
 use crate::adoptopenjdk::request::LatestBinary;
 use crate::adoptopenjdk::response::{Architecture, HeapSize, Imagetype, JVMImpl, OS, ReleaseType, Vendor};
 use std::path::Path;
 use std::str::FromStr;
 use tokio::io::AsyncWriteExt;
 use std::io::{stdin, stdout, Write};
-use crate::installer::settings::Settings;
+use crate::installer::settings::{Settings, Install};
 use clap::{App, Arg};
 use crate::installer::Installer;
 
@@ -41,9 +41,31 @@ async fn main() {
         for x in settings.installs {
             println!("{}", x);
         }
-    } else if matches.is_present("remove") {} else {
-        app.print_help();
+    } else if matches.is_present("remove") {
+        remove(&installer).await.unwrap();
+    } else {
+        app.print_long_help();
     }
+}
+
+pub async fn remove(installer: &Installer) -> Result<(), AdoptOpenJDKError> {
+    let mut settings = installer.get_settings().unwrap();
+    let mut i = 0;
+    for x in settings.installs {
+        println!("[{}]: {}", i, x);
+        i = i + 1;
+    }
+    print!("Please Select a Java Install from above 0-{}:", i-1);
+    let mut install = String::new();
+    stdout().flush();
+    let result = stdin().read_line(&mut install);
+    if let Err(err) = result {
+        panic!("Fail {}", err);
+    }
+    install.truncate(install.len() - 1);
+    let value = i64::from_str(install.as_str())?;
+    installer.uninstall(value as usize);
+    Ok(())
 }
 
 pub async fn install(installer: &Installer) {

@@ -20,6 +20,10 @@ impl Settings {
     pub fn add_install(&mut self, install: Install) {
         self.installs.push(install);
     }
+
+    pub fn remove_install(&mut self, value: usize) ->Install {
+        self.installs.remove(value)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -7,6 +7,7 @@ use reqwest::header::{USER_AGENT, HeaderValue, HeaderMap};
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use crate::utils::utils;
+use std::num::ParseIntError;
 
 pub mod response;
 pub mod request;
@@ -59,6 +60,11 @@ impl Error for AdoptOpenJDKError {}
 impl From<reqwest::Error> for AdoptOpenJDKError {
     fn from(err: reqwest::Error) -> AdoptOpenJDKError {
         AdoptOpenJDKError::ReqwestError(err)
+    }
+}
+impl From<ParseIntError> for AdoptOpenJDKError {
+    fn from(err: ParseIntError) -> AdoptOpenJDKError {
+        AdoptOpenJDKError::Custom(format!("{}", err))
     }
 }
 
