@@ -57,6 +57,7 @@ impl Installer {
         let javac = path_two.clone().join("bin").join("javac");
         let javadoc = path_two.clone().join("bin").join("javadoc");
         // sudo update-alternatives --install /usr/bin/java java <path> 1
+        Command::new("chmod").arg("-Rv").arg("755").arg(path_two.to_str().unwrap()).spawn()?;
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/java").arg("java").arg(java.to_str().unwrap()).arg("1").spawn()?;
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/javac").arg("javac").arg(javac.to_str().unwrap()).arg("1").spawn()?;
         Command::new("update-alternatives").arg("--install").arg("/usr/bin/javadoc").arg("javadoc").arg(javadoc.to_str().unwrap()).arg("1").spawn()?;
