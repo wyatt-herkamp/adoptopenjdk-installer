@@ -1,5 +1,4 @@
 use std::{fs,
-          io::{self, copy, Read},
           path::Path,
 };
 use std::fs::create_dir_all;
@@ -17,7 +16,7 @@ pub async fn download(url: &str, location: &Path, what: &str) -> Result<PathBuf,
     println!("Downloading {}", what);
     let x = location.clone();
     if !x.exists() {
-        create_dir_all(x);
+        create_dir_all(x)?;
     }
     let url = Url::parse(url).unwrap();
     let client = Client::new();
@@ -69,7 +68,7 @@ pub async fn download(url: &str, location: &Path, what: &str) -> Result<PathBuf,
 
     let mut source = request.send().await.unwrap();
     while let Some(chunk) = source.chunk().await.unwrap() {
-        dest.write_all(&chunk);
+        dest.write_all(&chunk)?;
         pb.inc(chunk.len() as u64);
     }
     println!(

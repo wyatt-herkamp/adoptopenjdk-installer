@@ -4,9 +4,9 @@ use std::path::{PathBuf, Path};
 use crate::adoptopenjdk::AdoptOpenJDKError;
 use std::fs::{File, create_dir_all, read_to_string, OpenOptions, remove_dir_all, remove_file};
 use flate2::read::GzDecoder;
-use tar::{Archive, Entry};
+use tar::{Archive};
 use std::process::Command;
-use std::fs;
+
 use crate::installer::settings::{Install, Settings};
 use std::io::Write;
 
@@ -40,19 +40,19 @@ impl Installer {
         println!("Installing: {} {}", install.jvm_version, install.jvm_impl.to_string());
         let file = File::open(path.clone())?;
         let tar = GzDecoder::new(file);
-        let mut archive = Archive::new(tar);
+        let archive = Archive::new(tar);
         let mut settings = self.get_settings()?;
 
         let buf = Path::new(settings.install_location.as_str()).join(install.jvm_impl.to_string());
         if !buf.exists() {
-            create_dir_all(&buf);
+            create_dir_all(&buf)?;
         }
         let string = unpack(archive, &buf)?;
-        let mut path_two = buf.join(string);
+        let path_two = buf.join(string);
         let mut install = install.clone();
         install.set_location(path_two.clone().to_str().unwrap().to_string());
         settings.add_install(install);
-        self.update_settings(settings);
+        self.update_settings(settings)?;
         let java = path_two.clone().join("bin").join("java");
         let javac = path_two.clone().join("bin").join("javac");
         let javadoc = path_two.clone().join("bin").join("javadoc");
@@ -91,7 +91,7 @@ impl Installer {
                 create_dir_all(x)?;
             }
         }else {
-            remove_file(&buf);
+            remove_file(&buf)?;
         }
         let string = toml::to_string(&settings)?;
         let mut file = OpenOptions::new().write(true).read(true).create(true).open(buf)?;

@@ -6,7 +6,7 @@ use crate::adoptopenjdk::AdoptOpenJDKError;
 use std::fmt::{Display, Formatter};
 
 use colored::*;
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum Architecture {
     x64,
@@ -33,19 +33,19 @@ impl FromStr for Architecture {
         };
     }
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum JVMImpl {
     hotspot,
     openj9,
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum HeapSize {
     normal,
     large,
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum Project {
     jdk,
@@ -54,7 +54,7 @@ pub enum Project {
     jfr,
     shenandoah,
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum Imagetype {
     jdk,
@@ -63,7 +63,7 @@ pub enum Imagetype {
     debugimage,
     staticlibs,
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum OS {
     linux,
@@ -74,7 +74,7 @@ pub enum OS {
     #[serde(rename = "alpine-linux")]
     alpine_linux,
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum ReleaseType {
     ea,
@@ -105,7 +105,7 @@ impl Display for AvailableReleases {
         write!(f, "[{}]", value)
     }
 }
-
+#[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum Vendor {
     adoptopenjdk,

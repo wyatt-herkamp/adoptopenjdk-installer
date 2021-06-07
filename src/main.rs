@@ -1,11 +1,10 @@
 use crate::adoptopenjdk::{AdoptOpenJDK, AdoptOpenJDKError};
 use crate::adoptopenjdk::request::LatestBinary;
 use crate::adoptopenjdk::response::{Architecture, HeapSize, Imagetype, JVMImpl, OS, ReleaseType, Vendor};
-use std::path::Path;
+
 use std::str::FromStr;
-use tokio::io::AsyncWriteExt;
 use std::io::{stdin, stdout, Write};
-use crate::installer::settings::{Settings, Install};
+use crate::installer::settings::{Settings};
 use clap::{App, Arg};
 use crate::installer::Installer;
 
@@ -33,9 +32,9 @@ async fn main() {
         .arg(Arg::with_name("install").short("i").long("install").help("Install a Java Version").takes_value(false))
         .arg(Arg::with_name("list").short("l").long("list").help("Lists installed Java versions").takes_value(false))
         .arg(Arg::with_name("remove").short("r").long("remove").help("Remove A Java Install").takes_value(false));
-    let mut matches = app.clone().get_matches();
+    let matches = app.clone().get_matches();
     if matches.is_present("install") {
-        install(&installer).await;
+        install(&installer).await.unwrap();
     } else if matches.is_present("list") {
         let settings = installer.get_settings().unwrap();
         for x in settings.installs {
@@ -44,12 +43,12 @@ async fn main() {
     } else if matches.is_present("remove") {
         remove(&installer).await.unwrap();
     } else {
-        app.print_long_help();
+        app.print_long_help().unwrap();
     }
 }
 
 pub async fn remove(installer: &Installer) -> Result<(), AdoptOpenJDKError> {
-    let mut settings = installer.get_settings().unwrap();
+    let settings = installer.get_settings().unwrap();
     let mut i = 0;
     for x in settings.installs {
         println!("[{}]: {}", i, x);
@@ -57,23 +56,23 @@ pub async fn remove(installer: &Installer) -> Result<(), AdoptOpenJDKError> {
     }
     print!("Please Select a Java Install from above 0-{}:", i-1);
     let mut install = String::new();
-    stdout().flush();
+    stdout().flush()?;
     let result = stdin().read_line(&mut install);
     if let Err(err) = result {
         panic!("Fail {}", err);
     }
     install.truncate(install.len() - 1);
     let value = i64::from_str(install.as_str())?;
-    installer.uninstall(value as usize);
+    installer.uninstall(value as usize)?;
     Ok(())
 }
 
-pub async fn install(installer: &Installer) {
+pub async fn install(installer: &Installer)->Result<(), AdoptOpenJDKError> {
     let jdk = AdoptOpenJDK::new("AdoptOpenJDK Installer by Wyatt Herkamp (github.com/wherkamp)".to_string());
     let result = jdk.get_releases().await.unwrap();
     print!("Please Select a Java Version {}: ", result.to_string());
     let mut java_version = String::new();
-    stdout().flush();
+    stdout().flush()?;
     let result = stdin().read_line(&mut java_version);
     if let Err(err) = result {
         panic!("Fail {}", err);
@@ -102,7 +101,7 @@ pub async fn install(installer: &Installer) {
     let result2 = installer.contains_install(&install).unwrap();
     if result2 {
         println!("That version has already been installed");
-        return;
+        return Ok(());
     }
     let result1 = jdk.download_binary(binary.clone(), std::env::temp_dir().as_path().clone()).await;
     if let Err(ref e) = result1 {
@@ -114,4 +113,5 @@ pub async fn install(installer: &Installer) {
     if let Err(ref e) = result3 {
         println!("{}", e);
     }
+    return Ok(());
 }

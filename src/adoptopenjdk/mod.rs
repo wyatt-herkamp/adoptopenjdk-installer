@@ -4,7 +4,7 @@ use std::fmt::{Formatter, Display};
 use crate::adoptopenjdk::response::AvailableReleases;
 use serde::de::DeserializeOwned;
 use reqwest::header::{USER_AGENT, HeaderValue, HeaderMap};
-use std::fs::File;
+
 use std::path::{Path, PathBuf};
 use crate::utils::utils;
 use std::num::ParseIntError;
@@ -46,10 +46,10 @@ impl Display for AdoptOpenJDKError {
                 return write!(f, "{} {}", x, err);
             }
             AdoptOpenJDKError::TOMLDeError(e) => {
-                return return write!(f, "TOML Error {}", e);
+                return write!(f, "TOML Error {}", e);
             }
             AdoptOpenJDKError::TOMLSeError(e) => {
-                return return write!(f, "TOML Error {}", e);
+                return write!(f, "TOML Error {}", e);
             }
         }
     }

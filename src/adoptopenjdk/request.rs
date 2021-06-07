@@ -1,6 +1,6 @@
 use serde::Deserialize;
 use serde::Serialize;
-use crate::adoptopenjdk::response::{Architecture, HeapSize, Imagetype, JVMImpl, OS, Project, ReleaseType, Vendor};
+use crate::adoptopenjdk::response::{Architecture, HeapSize, Imagetype, JVMImpl, OS, ReleaseType, Vendor};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LatestBinary {
     pub arch: Architecture,
