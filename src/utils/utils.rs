@@ -18,10 +18,10 @@ pub async fn download(url: &str, location: &Path, what: &str) -> Result<PathBuf,
     if !x.exists() {
         create_dir_all(x)?;
     }
-    let url = Url::parse(url).unwrap();
+    let url = Url::parse(url)?;
     let client = Client::new();
     let total_size = {
-        let resp = client.head(url.as_str()).send().await.unwrap();
+        let resp = client.head(url.as_str()).send().await?;
         if resp.status().is_success() {
             let value: String;
             if let Some(e) = resp.headers().get(header::CONTENT_DISPOSITION) {
@@ -54,7 +54,7 @@ pub async fn download(url: &str, location: &Path, what: &str) -> Result<PathBuf,
 
 
     if location.exists() {
-        let size = &location.metadata().unwrap().len() - 1;
+        let size = &location.metadata()?.len() - 1;
         request = request.header(header::RANGE, format!("bytes={}-", size));
         pb.inc(size);
     }

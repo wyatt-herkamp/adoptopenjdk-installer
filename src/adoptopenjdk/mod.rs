@@ -8,10 +8,10 @@ use reqwest::header::{USER_AGENT, HeaderValue, HeaderMap};
 use std::path::{Path, PathBuf};
 use crate::utils::utils;
 use std::num::ParseIntError;
+use url::ParseError;
 
 pub mod response;
 pub mod request;
-
 #[derive(Debug)]
 pub enum AdoptOpenJDKError {
     HTTPError(StatusCode),
@@ -91,7 +91,11 @@ impl From<toml::ser::Error> for AdoptOpenJDKError {
         AdoptOpenJDKError::TOMLSeError(err)
     }
 }
-
+impl From<ParseError> for AdoptOpenJDKError {
+    fn from(err: ParseError) -> AdoptOpenJDKError {
+        AdoptOpenJDKError::Custom(format!("Unable to parse URL {}", err))
+    }
+}
 pub struct AdoptOpenJDK {
     client: Client,
     user_agent: String,
