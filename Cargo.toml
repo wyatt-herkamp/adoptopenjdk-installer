@@ -17,7 +17,7 @@ tokio = { version = "1.6.0", features = ["full"] }
 serde_qs = "0.8.3"
 strum = { version = "0.21.0", features = ["derive"] }
 strum_macros = "0.21.1"
-derive_more = "0.99.14"
+derive_more = "0.99.16"
 indicatif = "0.16.0"
 colored = "2.0.0"
 flate2 = "1.0.20"
