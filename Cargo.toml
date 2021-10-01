@@ -14,7 +14,7 @@ description = "A Linux installer for AdoptOpenJDK "
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tokio = { version = "1.11.0", features = ["full"] }
-serde_qs = "0.8.4"
+serde_qs = "0.8.5"
 strum = { version = "0.21.0", features = ["derive"] }
 strum_macros = "0.21.1"
 derive_more = "0.99.16"
