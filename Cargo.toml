@@ -23,7 +23,7 @@ colored = "2.0.0"
 flate2 = "1.0.22"
 tar = "0.4.37"
 toml = "0.5.8"
-whoami = "1.2.0"
+whoami = "1.2.1"
 clap = "2.33.3"
 url = "2.2"
 [dependencies.reqwest]
