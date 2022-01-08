@@ -108,6 +108,9 @@ impl Display for AvailableReleases {
 #[allow(non_camel_case_types)]
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Display)]
 pub enum Vendor {
+    #[deprecated(note="As far as I understand Adoptium is removing this vendor")]
     adoptopenjdk,
+    #[deprecated(note="As far as I understand Adoptium is removing this vendor")]
     openjdk,
+    eclipse
 }

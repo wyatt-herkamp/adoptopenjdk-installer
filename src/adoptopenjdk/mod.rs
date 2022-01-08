@@ -157,7 +157,7 @@ impl AdoptOpenJDK {
     }
     /// Builds a URL
     pub fn build_url(&self, dest: &str) -> String {
-        format!("https://api.adoptopenjdk.net/v3/{}", dest)
+        format!("https://api.adoptium.net/v3/{}", dest)
     }
     /// Handles a Response from Reqwest mainly for internal use
     pub async fn respond<T: DeserializeOwned>(

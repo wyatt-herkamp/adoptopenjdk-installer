@@ -27,11 +27,11 @@ async fn main() {
         };
         installer.update_settings(settings1).unwrap();
     }
-    let mut app = App::new("AdoptOpenJDK Installer").
+    let mut app = App::new("Adoptium(AdoptOpenJDK) Installer").
         version("0.1.0").author("Wyatt Jacob Herkamp <wherkamp@kingtux.me>").about("A AdoptOpenJDK installer for Linux")
-        .arg(Arg::with_name("install").short("i").long("install").help("Install a Java Version").takes_value(false))
-        .arg(Arg::with_name("list").short("l").long("list").help("Lists installed Java versions").takes_value(false))
-        .arg(Arg::with_name("remove").short("r").long("remove").help("Remove A Java Install").takes_value(false));
+        .arg(Arg::new("install").short('i').long("install").help("Install a Java Version").takes_value(false))
+        .arg(Arg::new("list").short('l').long("list").help("Lists installed Java versions").takes_value(false))
+        .arg(Arg::new("remove").short('r').long("remove").help("Remove A Java Install").takes_value(false));
     let matches = app.clone().get_matches();
     if matches.is_present("install") {
         install(&installer).await.unwrap();
@@ -68,7 +68,7 @@ pub async fn remove(installer: &Installer) -> Result<(), AdoptOpenJDKError> {
 }
 
 pub async fn install(installer: &Installer)->Result<(), AdoptOpenJDKError> {
-    let jdk = AdoptOpenJDK::new("AdoptOpenJDK Installer by Wyatt Herkamp (github.com/wherkamp)".to_string());
+    let jdk = AdoptOpenJDK::new("Adoptium(AdoptOpenJDK) Installer by Wyatt Herkamp (github.com/wherkamp)".to_string());
     let result = jdk.get_releases().await.unwrap();
     print!("Please Select a Java Version {}: ", result.to_string());
     let mut java_version = String::new();
@@ -91,7 +91,7 @@ pub async fn install(installer: &Installer)->Result<(), AdoptOpenJDKError> {
         jvm_impl: JVMImpl::hotspot,
         os: OS::linux,
         release_type: ReleaseType::ga,
-        vendor: Vendor::adoptopenjdk,
+        vendor: Vendor::eclipse,
     };
     let install = installer::settings::Install {
         jvm_version: binary.feature_version.clone(),
